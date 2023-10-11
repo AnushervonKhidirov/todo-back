@@ -2,7 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 
-import { getTodos, addTodo } from './methods.js'
+import { getTodos, addTodo, updateTodo } from './methods.js'
 
 const app = express()
 
@@ -24,16 +24,12 @@ app.get('/todos/:todoId', (req, res) => {
 
 app.post('/todos/add', async (req, res) => {
     await addTodo(req.body.text)
-    const data = await getTodos()
-    res.send(data)
     res.end()
 })
 
-app.post('/todos/update/:todoId', (req, res) => {
-    res.end()
-})
-
-app.post('/todos/delete/:todoId', (req, res) => {
+app.post('/todos/update/:todoId', async (req, res) => {
+    const updatedTodo = await updateTodo({ id: req.params.todoId, todoData: req.body })
+    res.send(JSON.stringify(updatedTodo))
     res.end()
 })
 

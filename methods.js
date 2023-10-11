@@ -40,7 +40,7 @@ export async function removeTodo(id) {
     updateTodos(newData)
 }
 
-async function getTodos() {
+export async function getTodos() {
     await createTodoJson()
     const data = await fs.readFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`)
     return data.toString() === '' ? [] : JSON.parse(data.toString())

@@ -31,10 +31,14 @@ export async function removeTodo(id) {
     updateTodos(newData)
 }
 
-export async function getTodos() {
+export async function getTodos(filter) {
     await createTodoJson()
-    const data = await fs.readFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`)
-    return data.toString() === '' ? [] : JSON.parse(data.toString())
+    const allTodos = (await fs.readFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`)).toString()
+    const allTodosObject = allTodos === '' ? [] : JSON.parse(allTodos)
+
+    if (filter === 'active' && allTodosObject.length !== 0) return allTodosObject.filter(todo => !todo.isOnTrash)
+    if (filter === 'removed' && allTodosObject.length !== 0) return allTodosObject.filter(todo => todo.isOnTrash)
+    return allTodosObject
 }
 
 async function getTodoById(id) {

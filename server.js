@@ -14,8 +14,7 @@ app.listen(process.env.PORT)
 // Endpoints
 app.get('/todos/:filter', async (req, res) => {
     const todos = await getTodos(req.params.filter)
-    res.send(JSON.stringify(todos))
-    res.end()
+    res.end(JSON.stringify(todos))
 })
 
 app.get('/todos/:todoId', (req, res) => {
@@ -29,8 +28,7 @@ app.post('/todos/add', async (req, res) => {
 
 app.post('/todos/update/:todoId', async (req, res) => {
     const updatedTodo = await updateTodo({ id: req.params.todoId, todoData: req.body })
-    res.send(JSON.stringify(updatedTodo))
-    res.end()
+    res.end(JSON.stringify(updatedTodo))
 })
 
 app.post('/todos/remove/:todoId', (req, res) => {

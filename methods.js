@@ -18,22 +18,27 @@ export async function addTodo(text) {
     return todoToAdd
 }
 
-export async function updateTodo({ id, todoData }) {
+export async function updateTodo(todoData) {
+    console.log('todoData', todoData)
+
     const data = await getTodos()
-    const newData = data.map(todo => (todo.id === id ? todoData : todo))
+    const newData = data.map(todo => (todo.id === todoData.id ? todoData : todo))
     updateTodos(newData)
-    return getTodoById(id)
+    return todoData
 }
 
 export async function removeTodo(id) {
     const data = await getTodos()
     const newData = data.filter(todo => todo.id !== id)
     updateTodos(newData)
+    return {}
 }
 
 export async function getTodos(filter) {
     await createTodoJson()
-    const allTodos = (await fs.readFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`)).toString()
+    const allTodos = (
+        await fs.readFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`)
+    ).toString()
     const allTodosObject = allTodos === '' ? [] : JSON.parse(allTodos)
 
     if (filter === 'active' && allTodosObject.length !== 0) return allTodosObject.filter(todo => !todo.isOnTrash)
@@ -41,8 +46,10 @@ export async function getTodos(filter) {
     return allTodosObject
 }
 
-async function getTodoById(id) {
-    const todosJson = (await fs.readFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`)).toString()
+export async function getTodoById(id) {
+    const todosJson = (
+        await fs.readFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`)
+    ).toString()
     const todos = JSON.parse(todosJson)
 
     return todos.find(todo => todo.id === id)

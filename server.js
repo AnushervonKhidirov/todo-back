@@ -2,7 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 
-import { getTodos, addTodo, updateTodo } from './methods.js'
+import { getTodos, getTodoById, addTodo, updateTodo, removeTodo } from './methods.js'
 
 const app = express()
 
@@ -17,20 +17,22 @@ app.get('/todos/:filter', async (req, res) => {
     res.end(JSON.stringify(todos))
 })
 
-app.get('/todos/:todoId', (req, res) => {
-    res.end()
+app.get('/todos/get/:todoId', async (req, res) => {
+    const todo = await getTodoById(req.body.id)
+    res.end(JSON.stringify(todo))
 })
 
 app.post('/todos/add', async (req, res) => {
-    const response = await addTodo(req.body.text)
-    res.end(JSON.stringify(response))
+    const todos = await addTodo(req.body.text)
+    res.end(JSON.stringify(todos))
 })
 
-app.post('/todos/update/:todoId', async (req, res) => {
-    const updatedTodo = await updateTodo({ id: req.params.todoId, todoData: req.body })
-    res.end(JSON.stringify(updatedTodo))
+app.post('/todos/update', async (req, res) => {
+    const todos = await updateTodo(req.body)
+    res.end(JSON.stringify(todos))
 })
 
-app.post('/todos/remove/:todoId', (req, res) => {
-    res.end()
+app.delete('/todos/remove', async (req, res) => {
+    const todos = await removeTodo(req.body.id)
+    res.end(JSON.stringify(todos))
 })

@@ -19,8 +19,6 @@ export async function addTodo(text) {
 }
 
 export async function updateTodo(todoData) {
-    console.log('todoData', todoData)
-
     const data = await getTodos()
     const newData = data.map(todo => (todo.id === todoData.id ? todoData : todo))
     updateTodos(newData)
@@ -37,7 +35,7 @@ export async function removeTodo(id) {
 export async function getTodos(filter) {
     await createTodoJson()
     const allTodos = (
-        await fs.readFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`)
+        await fs.readFile(`${process.cwd()}/${process.env.DB_FOLDER}/${process.env.TODO_FILE}`)
     ).toString()
     const allTodosObject = allTodos === '' ? [] : JSON.parse(allTodos)
 
@@ -48,7 +46,7 @@ export async function getTodos(filter) {
 
 export async function getTodoById(id) {
     const todosJson = (
-        await fs.readFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`)
+        await fs.readFile(`${process.cwd()}/${process.env.DB_FOLDER}/${process.env.TODO_FILE}`)
     ).toString()
     const todos = JSON.parse(todosJson)
 
@@ -56,12 +54,12 @@ export async function getTodoById(id) {
 }
 
 async function updateTodos(todos) {
-    fs.writeFile(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`, JSON.stringify(todos))
+    fs.writeFile(`${process.cwd()}/${process.env.DB_FOLDER}/${process.env.TODO_FILE}`, JSON.stringify(todos))
 }
 
 async function createTodoJson() {
-    if (!fsSimple.existsSync(`${process.cwd()}/${process.env.TODO_FOLDER}`))
-        fsSimple.mkdirSync(`${process.cwd()}/${process.env.TODO_FOLDER}`)
-    if (!fsSimple.existsSync(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`))
-        fsSimple.writeFileSync(`${process.cwd()}/${process.env.TODO_FOLDER}/${process.env.TODO_FILE}`, '[]')
+    if (!fsSimple.existsSync(`${process.cwd()}/${process.env.DB_FOLDER}`))
+        fsSimple.mkdirSync(`${process.cwd()}/${process.env.DB_FOLDER}`)
+    if (!fsSimple.existsSync(`${process.cwd()}/${process.env.DB_FOLDER}/${process.env.TODO_FILE}`))
+        fsSimple.writeFileSync(`${process.cwd()}/${process.env.DB_FOLDER}/${process.env.TODO_FILE}`, '[]')
 }

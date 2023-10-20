@@ -2,7 +2,8 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 
-import { getTodos, getTodoById, addTodo, updateTodo, removeTodo } from './methods.js'
+import { getTodos, getTodoById, addTodo, updateTodo, removeTodo } from './methods/todo.js'
+import { getProjects, getProjectById, addProject, updateProject, removeProject } from './methods/project.js'
 
 const app = express()
 
@@ -11,7 +12,33 @@ app.use(cors())
 
 app.listen(process.env.PORT)
 
-// Endpoints
+// Project endpoints
+app.get('/projects/:filter', async (req, res) => {
+    const projects = await getProjects(req.params.filter)
+    res.end(JSON.stringify(projects))
+})
+
+app.get('/projects/get/:todoId', async (req, res) => {
+    const project = await getProjectById(req.body.id)
+    res.end(JSON.stringify(project))
+})
+
+app.post('/projects/add', async (req, res) => {
+    const projects = await addProject(req.body.text)
+    res.end(JSON.stringify(projects))
+})
+
+app.post('/projects/update', async (req, res) => {
+    const projects = await updateProject(req.body)
+    res.end(JSON.stringify(projects))
+})
+
+app.delete('/projects/remove', async (req, res) => {
+    const projects = await removeProject(req.body.id)
+    res.end(JSON.stringify(projects))
+})
+
+// Todo endpoints
 app.get('/todos/:filter', async (req, res) => {
     const todos = await getTodos(req.params.filter)
     res.end(JSON.stringify(todos))

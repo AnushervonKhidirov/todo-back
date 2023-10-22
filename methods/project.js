@@ -21,7 +21,7 @@ export async function updateProject(projectData) {
     const data = await getProjects()
     const newData = data.map(project => (project.id === projectData.id ? projectData : project))
     updateProjects(newData)
-    return projectData    
+    return projectData
 }
 
 export async function deleteProject(id) {
@@ -39,13 +39,16 @@ export async function getProjects(filter) {
 
     const allProjectObject = allProject === '' ? [] : JSON.parse(allProject)
 
-    if (filter === 'active' && allProjectObject.length !== 0) return allProjectObject.filter(project => !project.deleted)
-    if (filter === 'deleted' && allProjectObject.length !== 0) return allProjectObject.filter(project => project.deleted)
+    if (filter === 'active' && allProjectObject.length !== 0)
+        return allProjectObject.filter(project => !project.deleted)
+    if (filter === 'deleted' && allProjectObject.length !== 0)
+        return allProjectObject.filter(project => project.deleted)
     return allProjectObject
 }
 
 export async function getProjectById(id) {
-    
+    const allProject = await getProjects()
+    return allProject.find(project => project.id === id)
 }
 
 async function updateProjects(projects) {

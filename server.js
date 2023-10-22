@@ -39,8 +39,8 @@ app.delete('/projects/delete', async (req, res) => {
 })
 
 // Todo endpoints
-app.get('/todos/:filter', async (req, res) => {
-    const todos = await getTodos(req.params.filter)
+app.get('/todos/:filter/:projectId?', async (req, res) => {
+    const todos = await getTodos(req.params.filter, req.params.projectId)
     res.end(JSON.stringify(todos))
 })
 
@@ -50,7 +50,7 @@ app.get('/todos/get/:todoId', async (req, res) => {
 })
 
 app.post('/todos/add', async (req, res) => {
-    const todos = await addTodo(req.body.text)
+    const todos = await addTodo(req.body)
     res.end(JSON.stringify(todos))
 })
 

@@ -2,11 +2,12 @@ import 'dotenv/config'
 import fsSimple from 'fs'
 import fs from 'fs/promises'
 import { v4 as uuid } from 'uuid'
+import { getProjectById, updateProject } from './project.js'
 
-export async function addTodo(text) {
+export async function addTodo(todo) {
     const todoToAdd = {
         id: uuid(),
-        text: text,
+        text: todo.text,
         done: false,
         deleted: false,
     }
@@ -14,6 +15,10 @@ export async function addTodo(text) {
     const data = await getTodos()
     data.unshift(todoToAdd)
     updateTodos(data)
+
+    const project = await getProjectById(todo.projectId)
+    project.todos.push(todoToAdd.id)
+    updateProject(project)
 
     return todoToAdd
 }
@@ -32,12 +37,17 @@ export async function deleteTodo(id) {
     return {}
 }
 
-export async function getTodos(filter) {
+export async function getTodos(filter, projectId) {
     await createTodoJson()
     const allTodos = (
         await fs.readFile(`${process.cwd()}/${process.env.DB_FOLDER}/${process.env.TODO_FILE}`)
     ).toString()
-    const allTodosObject = allTodos === '' ? [] : JSON.parse(allTodos)
+    let allTodosObject = allTodos === '' ? [] : JSON.parse(allTodos)
+
+    if (projectId) {
+        const project = await getProjectById(projectId)
+        allTodosObject = allTodosObject.filter(todo => project.todos.find(todoId => todoId === todo.id))
+    }
 
     if (filter === 'active' && allTodosObject.length !== 0) return allTodosObject.filter(todo => !todo.deleted)
     if (filter === 'deleted' && allTodosObject.length !== 0) return allTodosObject.filter(todo => todo.deleted)
@@ -45,11 +55,7 @@ export async function getTodos(filter) {
 }
 
 export async function getTodoById(id) {
-    const todosJson = (
-        await fs.readFile(`${process.cwd()}/${process.env.DB_FOLDER}/${process.env.TODO_FILE}`)
-    ).toString()
-    const todos = JSON.parse(todosJson)
-
+    const todos = await getTodos()
     return todos.find(todo => todo.id === id)
 }
 

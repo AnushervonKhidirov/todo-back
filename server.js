@@ -2,8 +2,8 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 
-import { getTodos, getTodoById, addTodo, updateTodo, removeTodo } from './methods/todo.js'
-import { getProjects, getProjectById, addProject, updateProject, removeProject } from './methods/project.js'
+import { getTodos, getTodoById, addTodo, updateTodo, deleteTodo } from './methods/todo.js'
+import { getProjects, getProjectById, addProject, updateProject, deleteProject } from './methods/project.js'
 
 const app = express()
 
@@ -33,8 +33,8 @@ app.post('/projects/update', async (req, res) => {
     res.end(JSON.stringify(projects))
 })
 
-app.delete('/projects/remove', async (req, res) => {
-    const projects = await removeProject(req.body.id)
+app.delete('/projects/delete', async (req, res) => {
+    const projects = await deleteProject(req.body.id)
     res.end(JSON.stringify(projects))
 })
 
@@ -59,7 +59,7 @@ app.post('/todos/update', async (req, res) => {
     res.end(JSON.stringify(todos))
 })
 
-app.delete('/todos/remove', async (req, res) => {
-    const todos = await removeTodo(req.body.id)
+app.delete('/todos/delete', async (req, res) => {
+    const todos = await deleteTodo(req.body.id)
     res.end(JSON.stringify(todos))
 })

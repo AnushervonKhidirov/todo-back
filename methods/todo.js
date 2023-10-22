@@ -7,8 +7,8 @@ export async function addTodo(text) {
     const todoToAdd = {
         id: uuid(),
         text: text,
-        isDone: false,
-        isOnTrash: false,
+        done: false,
+        deleted: false,
     }
 
     const data = await getTodos()
@@ -25,7 +25,7 @@ export async function updateTodo(todoData) {
     return todoData
 }
 
-export async function removeTodo(id) {
+export async function deleteTodo(id) {
     const data = await getTodos()
     const newData = data.filter(todo => todo.id !== id)
     updateTodos(newData)
@@ -39,8 +39,8 @@ export async function getTodos(filter) {
     ).toString()
     const allTodosObject = allTodos === '' ? [] : JSON.parse(allTodos)
 
-    if (filter === 'active' && allTodosObject.length !== 0) return allTodosObject.filter(todo => !todo.isOnTrash)
-    if (filter === 'removed' && allTodosObject.length !== 0) return allTodosObject.filter(todo => todo.isOnTrash)
+    if (filter === 'active' && allTodosObject.length !== 0) return allTodosObject.filter(todo => !todo.deleted)
+    if (filter === 'deleted' && allTodosObject.length !== 0) return allTodosObject.filter(todo => todo.deleted)
     return allTodosObject
 }
 

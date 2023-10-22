@@ -8,7 +8,7 @@ export async function addProject(name) {
         id: uuid(),
         name: name,
         todos: [],
-        isOnTrash: false,
+        deleted: false,
     }
 
     const allProjects = await getProjects()
@@ -24,7 +24,7 @@ export async function updateProject(projectData) {
     return projectData    
 }
 
-export async function removeProject(id) {
+export async function deleteProject(id) {
     const data = await getProjects()
     const newData = data.filter(project => project.id !== id)
     updateProjects(newData)
@@ -39,8 +39,8 @@ export async function getProjects(filter) {
 
     const allProjectObject = allProject === '' ? [] : JSON.parse(allProject)
 
-    if (filter === 'active' && allProjectObject.length !== 0) return allProjectObject.filter(project => !project.isOnTrash)
-    if (filter === 'removed' && allProjectObject.length !== 0) return allProjectObject.filter(project => project.isOnTrash)
+    if (filter === 'active' && allProjectObject.length !== 0) return allProjectObject.filter(project => !project.deleted)
+    if (filter === 'deleted' && allProjectObject.length !== 0) return allProjectObject.filter(project => project.deleted)
     return allProjectObject
 }
 

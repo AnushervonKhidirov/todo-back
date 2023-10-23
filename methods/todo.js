@@ -8,6 +8,7 @@ export async function addTodo(todo) {
     const todoToAdd = {
         id: uuid(),
         text: todo.text,
+        projectId: todo.projectId,
         done: false,
         deleted: false,
     }
@@ -15,10 +16,6 @@ export async function addTodo(todo) {
     const data = await getTodos()
     data.unshift(todoToAdd)
     updateTodos(data)
-
-    const project = await getProjectById(todo.projectId)
-    project.todos.push(todoToAdd.id)
-    updateProject(project)
 
     return todoToAdd
 }
@@ -44,13 +41,10 @@ export async function getTodos(filter, projectId) {
     ).toString()
     let allTodosObject = allTodos === '' ? [] : JSON.parse(allTodos)
 
-    if (projectId) {
-        const project = await getProjectById(projectId)
-        allTodosObject = allTodosObject.filter(todo => project.todos.find(todoId => todoId === todo.id))
-    }
-
+    if (projectId) allTodosObject = allTodosObject.filter(todo => todo.projectId === projectId)
     if (filter === 'active' && allTodosObject.length !== 0) return allTodosObject.filter(todo => !todo.deleted)
     if (filter === 'deleted' && allTodosObject.length !== 0) return allTodosObject.filter(todo => todo.deleted)
+
     return allTodosObject
 }
 

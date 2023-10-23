@@ -7,7 +7,6 @@ export async function addProject(name) {
     const project = {
         id: uuid(),
         name: name,
-        todos: [],
         deleted: false,
     }
 

@@ -10,43 +10,47 @@ export async function addProject(name) {
         deleted: false,
     }
 
-    const allProjects = await getProjects()
+    const allProjects = await getAllProjects()
     allProjects.push(project)
     updateProjects(allProjects)
     return project
 }
 
 export async function updateProject(projectData) {
-    const data = await getProjects()
+    const data = await getAllProjects()
     const newData = data.map(project => (project.id === projectData.id ? projectData : project))
     updateProjects(newData)
     return projectData
 }
 
 export async function deleteProject(id) {
-    const data = await getProjects()
+    const data = await getAllProjects()
     const newData = data.filter(project => project.id !== id)
     updateProjects(newData)
     return {}
 }
 
-export async function getProjects(filter) {
+export async function getAllProjects() {
     await createProjectJson()
     const allProject = (
         await fs.readFile(`${process.cwd()}/${process.env.DB_FOLDER}/${process.env.PROJECT_FILE}`)
     ).toString()
 
-    const allProjectObject = allProject === '' ? [] : JSON.parse(allProject)
+    return allProject === '' ? [] : JSON.parse(allProject)
+}
 
-    if (filter === 'active' && allProjectObject.length !== 0)
-        return allProjectObject.filter(project => !project.deleted)
-    if (filter === 'deleted' && allProjectObject.length !== 0)
-        return allProjectObject.filter(project => project.deleted)
-    return allProjectObject
+export async function getActiveProjects() {
+    const allProject = await getAllProjects()
+    return allProject.filter(project => !project.deleted)
+}
+
+export async function getDeletedProjects() {
+    const allProject = await getAllProjects()
+    return allProject.filter(project => project.deleted)
 }
 
 export async function getProjectById(id) {
-    const allProject = await getProjects()
+    const allProject = await getAllProjects()
     return allProject.find(project => project.id === id)
 }
 

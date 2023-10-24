@@ -2,8 +2,8 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 
-import { getTodos, getTodoById, addTodo, updateTodo, deleteTodo } from './methods/todo.js'
-import { getProjects, getProjectById, addProject, updateProject, deleteProject } from './methods/project.js'
+import { getAllTodos, getActiveTodos, getDeletedTodos, getTodoById, addTodo, updateTodo, deleteTodo } from './methods/todo.js'
+import { getAllProjects, getActiveProjects, getDeletedProjects, getProjectById, addProject, updateProject, deleteProject } from './methods/project.js'
 
 const app = express()
 
@@ -13,8 +13,18 @@ app.use(cors())
 app.listen(process.env.PORT)
 
 // Project endpoints
-app.get('/projects/:filter', async (req, res) => {
-    const projects = await getProjects(req.params.filter)
+app.get('/projects/all', async (_, res) => {
+    const projects = await getAllProjects()
+    res.end(JSON.stringify(projects))
+})
+
+app.get('/projects/active', async (_, res) => {
+    const projects = await getActiveProjects()
+    res.end(JSON.stringify(projects))
+})
+
+app.get('/projects/deleted', async (_, res) => {
+    const projects = await getDeletedProjects()
     res.end(JSON.stringify(projects))
 })
 
@@ -39,8 +49,18 @@ app.delete('/projects/delete', async (req, res) => {
 })
 
 // Todo endpoints
-app.get('/todos/:filter/:projectId?', async (req, res) => {
-    const todos = await getTodos(req.params.filter, req.params.projectId)
+app.get('/todos/all/:projectId?', async (req, res) => {
+    const todos = await getAllTodos(req.params.projectId)
+    res.end(JSON.stringify(todos))
+})
+
+app.get('/todos/active/:projectId?', async (req, res) => {
+    const todos = await getActiveTodos(req.params.projectId)
+    res.end(JSON.stringify(todos))
+})
+
+app.get('/todos/deleted/:projectId?', async (req, res) => {
+    const todos = await getDeletedTodos(req.params.projectId)
     res.end(JSON.stringify(todos))
 })
 
@@ -62,4 +82,12 @@ app.post('/todos/update', async (req, res) => {
 app.delete('/todos/delete', async (req, res) => {
     const todos = await deleteTodo(req.body.id)
     res.end(JSON.stringify(todos))
+})
+
+// Bin endpoints
+app.get('/bin', async (_, res) => {
+    res.end(JSON.stringify({
+        projects: await getDeletedProjects(),
+        todos: await getDeletedTodos()
+    }))
 })

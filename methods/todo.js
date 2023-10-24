@@ -2,7 +2,6 @@ import 'dotenv/config'
 import fsSimple from 'fs'
 import fs from 'fs/promises'
 import { v4 as uuid } from 'uuid'
-import { getProjectById, updateProject } from './project.js'
 
 export async function addTodo(todo) {
     const todoToAdd = {
@@ -13,7 +12,7 @@ export async function addTodo(todo) {
         deleted: false,
     }
 
-    const data = await getTodos()
+    const data = await getAllTodos()
     data.unshift(todoToAdd)
     updateTodos(data)
 
@@ -21,35 +20,42 @@ export async function addTodo(todo) {
 }
 
 export async function updateTodo(todoData) {
-    const data = await getTodos()
+    const data = await getAllTodos()
     const newData = data.map(todo => (todo.id === todoData.id ? todoData : todo))
     updateTodos(newData)
     return todoData
 }
 
 export async function deleteTodo(id) {
-    const data = await getTodos()
+    const data = await getAllTodos()
     const newData = data.filter(todo => todo.id !== id)
     updateTodos(newData)
     return {}
 }
 
-export async function getTodos(filter, projectId) {
+export async function getAllTodos(projectId) {
     await createTodoJson()
     const allTodos = (
         await fs.readFile(`${process.cwd()}/${process.env.DB_FOLDER}/${process.env.TODO_FILE}`)
     ).toString()
-    let allTodosObject = allTodos === '' ? [] : JSON.parse(allTodos)
 
-    if (projectId) allTodosObject = allTodosObject.filter(todo => todo.projectId === projectId)
-    if (filter === 'active' && allTodosObject.length !== 0) return allTodosObject.filter(todo => !todo.deleted)
-    if (filter === 'deleted' && allTodosObject.length !== 0) return allTodosObject.filter(todo => todo.deleted)
+    if (allTodos === '') return []
+    if (projectId) return JSON.parse(allTodos).filter(todo => todo.projectId === projectId)
+    return JSON.parse(allTodos)
+}
 
-    return allTodosObject
+export async function getActiveTodos(projectId) {
+    const allTodos = await getAllTodos(projectId)
+    return allTodos.filter(todo => !todo.deleted)
+}
+
+export async function getDeletedTodos(projectId) {
+    const allTodos = await getAllTodos(projectId)
+    return allTodos.filter(todo => todo.deleted)
 }
 
 export async function getTodoById(id) {
-    const todos = await getTodos()
+    const todos = await getAllTodos()
     return todos.find(todo => todo.id === id)
 }
 

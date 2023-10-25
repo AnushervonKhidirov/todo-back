@@ -2,8 +2,24 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 
-import { getAllTodos, getActiveTodos, getDeletedTodos, getTodoById, addTodo, updateTodo, deleteTodo } from './methods/todo.js'
-import { getAllProjects, getActiveProjects, getDeletedProjects, getProjectById, addProject, updateProject, deleteProject } from './methods/project.js'
+import {
+    getAllTodos,
+    getActiveTodos,
+    getDeletedTodos,
+    getTodoById,
+    addTodo,
+    updateTodo,
+    deleteTodo,
+} from './methods/todo.js'
+import {
+    getAllProjects,
+    getActiveProjects,
+    getDeletedProjects,
+    getProjectById,
+    addProject,
+    updateProject,
+    deleteProject,
+} from './methods/project.js'
 
 const app = express()
 
@@ -86,8 +102,20 @@ app.delete('/todos/delete', async (req, res) => {
 
 // Bin endpoints
 app.get('/bin', async (_, res) => {
+    const activeProjects = await getActiveProjects()
+    const deletedProjects = await getDeletedProjects()
+    const deletedTodos = await getDeletedTodos()
+
+    const dependentProjects = activeProjects.filter(project => {
+        return deletedTodos.find(todo => {
+            if (todo.projectId === project.id) return project
+        })
+    })
+
+    dependentProjects.push(...deletedProjects)
+
     res.end(JSON.stringify({
-        projects: await getDeletedProjects(),
-        todos: await getDeletedTodos()
+        projects: dependentProjects,
+        todos: deletedTodos,
     }))
 })

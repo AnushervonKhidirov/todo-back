@@ -2,25 +2,7 @@ import { configDotenv } from 'dotenv'
 import express from 'express'
 import cors from 'cors'
 import { createConnection } from 'mysql'
-
-import {
-    getAllProjects,
-    getActiveProjects,
-    getDeletedProjects,
-    addProject,
-    updateProject,
-    deleteProject,
-} from './models/project.js'
-
-// import {
-//     getAllTodos,
-//     getActiveTodos,
-//     getDeletedTodos,
-//     getTodoById,
-//     addTodo,
-//     updateTodo,
-//     deleteTodo,
-// } from './methods/todo.js'
+import Query from './models/query.js'
 
 configDotenv({ path: `${process.cwd()}/.env` })
 configDotenv({ path: `${process.cwd()}/.env.local` })
@@ -35,8 +17,15 @@ export const database = createConnection({
 try {
     database.connect()
 } catch (err: any) {
-    console.log(err.message)
+    throw new Error(err.message)
 }
+
+if (!process.env.PROJECT_TABLE || !process.env.TODO_TABLE) {
+    throw new Error('Tables are undefined')
+}
+
+const projectQuery = new Query(process.env.PROJECT_TABLE)
+const todoQuery = new Query(process.env.TODO_TABLE)
 
 const app = express()
 
@@ -47,35 +36,33 @@ app.listen(process.env.PORT)
 
 // Project endpoints
 app.get('/projects/all', async (_, res) => {
-    const projects = await getAllProjects()
+    const projects = await projectQuery.getAll()
     res.end(JSON.stringify(projects))
 })
 
 app.get('/projects/active', async (_, res) => {
-    const projects = await getActiveProjects()
+    const projects = await projectQuery.getActive()
     res.end(JSON.stringify(projects))
 })
 
 app.get('/projects/deleted', async (_, res) => {
-    const projects = await getDeletedProjects()
+    const projects = await projectQuery.getDeleted()
     res.end(JSON.stringify(projects))
 })
 
 app.post('/projects/add', async (req, res) => {
-    const project = await addProject(req.body.text)
+    const project = await projectQuery.add(req.body)
     res.end(JSON.stringify(project))
 })
 
 app.post('/projects/update', async (req, res) => {
-    const project = await updateProject(req.body)
+    const project = await projectQuery.update(req.body)
     res.end(JSON.stringify(project))
 })
 
 app.delete('/projects/delete', async (req, res) => {
-    console.log('delete endpoint')
-
-    const projects = await deleteProject(req.body.id)
-    res.end(JSON.stringify([]))
+    await projectQuery.delete(req.body.id)
+    res.end()
 })
 
 // Todo endpoints

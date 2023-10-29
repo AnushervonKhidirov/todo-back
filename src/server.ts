@@ -2,7 +2,7 @@ import { configDotenv } from 'dotenv'
 import express from 'express'
 import cors from 'cors'
 import { createConnection } from 'mysql'
-import Query from './models/query.js'
+import { ProjectQuery, TodoQuery } from './models/query.js'
 
 configDotenv({ path: `${process.cwd()}/.env` })
 configDotenv({ path: `${process.cwd()}/.env.local` })
@@ -24,8 +24,8 @@ if (!process.env.PROJECT_TABLE || !process.env.TODO_TABLE) {
     throw new Error('Tables are undefined')
 }
 
-const projectQuery = new Query(process.env.PROJECT_TABLE)
-const todoQuery = new Query(process.env.TODO_TABLE)
+const projectQuery = new ProjectQuery(process.env.PROJECT_TABLE)
+const todoQuery = new TodoQuery(process.env.TODO_TABLE)
 
 const app = express()
 
@@ -66,40 +66,35 @@ app.delete('/projects/delete', async (req, res) => {
 })
 
 // Todo endpoints
-// app.get('/todos/all/:projectId?', async (req, res) => {
-//     const todos = await getAllTodos(req.params.projectId)
-//     res.end(JSON.stringify([]))
-// })
+app.get('/todos/all/:projectId?', async (req, res) => {
+    const todos = await todoQuery.getAll(Number(req.params.projectId))
+    res.end(JSON.stringify(todos.reverse()))
+})
 
-// app.get('/todos/active/:projectId?', async (req, res) => {
-//     const todos = await getActiveTodos(req.params.projectId)
-//     res.end(JSON.stringify([]))
-// })
+app.get('/todos/active/:projectId?', async (req, res) => {
+    const todos = await todoQuery.getActive(Number(req.params.projectId))    
+    res.end(JSON.stringify(todos.reverse()))
+})
 
-// app.get('/todos/deleted/:projectId?', async (req, res) => {
-//     const todos = await getDeletedTodos(req.params.projectId)
-//     res.end(JSON.stringify([]))
-// })
+app.get('/todos/deleted/:projectId?', async (req, res) => {
+    const todos = await todoQuery.getDeleted(Number(req.params.projectId))
+    res.end(JSON.stringify(todos.reverse()))
+})
 
-// app.get('/todos/get/:todoId', async (req, res) => {
-//     const todo = await getTodoById(req.body.id)
-//     res.end(JSON.stringify({}))
-// })
+app.post('/todos/add', async (req, res) => {
+    const todos = await todoQuery.add(req.body)
+    res.end(JSON.stringify(todos))
+})
 
-// app.post('/todos/add', async (req, res) => {
-//     const todos = await addTodo(req.body)
-//     res.end(JSON.stringify([]))
-// })
+app.post('/todos/update', async (req, res) => {
+    const todos = await todoQuery.update(req.body)
+    res.end(JSON.stringify(todos))
+})
 
-// app.post('/todos/update', async (req, res) => {
-//     const todos = await updateTodo(req.body)
-//     res.end(JSON.stringify([]))
-// })
-
-// app.delete('/todos/delete', async (req, res) => {
-//     const todos = await deleteTodo(req.body.id)
-//     res.end(JSON.stringify([]))
-// })
+app.delete('/todos/delete', async (req, res) => {
+    await todoQuery.delete(req.body.id)
+    res.end()
+})
 
 // Bin endpoints
 // app.get('/bin', async (_, res) => {

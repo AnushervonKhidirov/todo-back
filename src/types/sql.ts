@@ -1,4 +1,4 @@
-export interface ISqlAddResult {
+export interface ISqlResult {
     fieldCount: number
     affectedRows: number
     insertId: number

@@ -72,7 +72,7 @@ app.get('/todos/all/:projectId?', async (req, res) => {
 })
 
 app.get('/todos/active/:projectId?', async (req, res) => {
-    const todos = await todoQuery.getActive(Number(req.params.projectId))    
+    const todos = await todoQuery.getActive(Number(req.params.projectId))
     res.end(JSON.stringify(todos.reverse()))
 })
 
@@ -97,23 +97,23 @@ app.delete('/todos/delete', async (req, res) => {
 })
 
 // Bin endpoints
-// app.get('/bin', async (_, res) => {
-//     const activeProjects = await getActiveProjects()
-//     const deletedProjects = await getDeletedProjects()
-//     const deletedTodos = await getDeletedTodos()
+app.get('/bin', async (_, res) => {
+    const activeProjects = await projectQuery.getActive()
+    const deletedProjects = await projectQuery.getDeleted()
+    const deletedTodos = await todoQuery.getDeleted()
 
-//     const dependentProjects = activeProjects.filter(project => {
-//         return deletedTodos.find(todo => {
-//             if (todo.projectId === project.id) return project
-//         })
-//     })
+    const dependentProjects = activeProjects.filter(project => {
+        return deletedTodos.find(todo => {
+            if (todo.projectId === project.id) return project
+        })
+    })
 
-//     dependentProjects.push(...deletedProjects)
+    dependentProjects.push(...deletedProjects)
 
-//     res.end(
-//         JSON.stringify({
-//             projects: dependentProjects,
-//             todos: deletedTodos,
-//         })
-//     )
-// })
+    res.end(
+        JSON.stringify({
+            projects: dependentProjects,
+            todos: deletedTodos,
+        })
+    )
+})

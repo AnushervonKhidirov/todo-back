@@ -131,10 +131,10 @@ export class TodoQuery<T extends ITodo> extends Query<T> {
         }
     }
 
-    async getDeleted(projectId: number): Promise<T[]> {
+    async getDeleted(projectId?: number): Promise<T[]> {
         try {
             return await this.appQuery<T[]>(
-                `SELECT * FROM ${this.table} WHERE deleted = 1 && projectId = ${projectId};`
+                `SELECT * FROM ${this.table} WHERE deleted = 1 ${projectId ? `&& projectId = ${projectId}` : ''};`
             )
         } catch (err: any) {
             return err.message
